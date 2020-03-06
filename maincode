@@ -1,0 +1,43 @@
+import cv2
+from google.colab.patches import cv2_imshow
+import numpy as np
+from matplotlib import pyplot as plt 
+import math
+
+img  = cv2.imread('lowcon.tif', 0)
+img  = cv2.resize(img, (300, 300
+                        ))
+cv2_imshow(img)
+histr = cv2.calcHist([img],[0],None,[256],[0,256]) 
+plt.plot(histr) 
+plt.show() 
+
+width, length = img.shape
+fCount = np.zeros([256], dtype='int')
+probArray = np.zeros(256, dtype='double')
+cummArray = np.zeros(256 )
+
+for x in range(width):
+  for y in range(length):
+    fCount[img[x][y]] = fCount[img[x][y]] + 1
+noOfPixels = sum(fCount)
+for x in range(256):
+  probArray[x] = round((fCount[x] / noOfPixels), 3)
+
+for x in range(256):
+  if(x == 0):
+    cummArray[x] = probArray[x]
+  elif(x > 0):  
+    cummArray[x] =  round((cummArray[x-1] + probArray[x]), 3)  
+
+for x in range(256):
+  cummArray[x] = round((cummArray[x] * 255))
+
+for x in range(width):
+  for y in range(length):
+        img[x][y] = cummArray[img[x][y]] 
+
+cv2_imshow(img)
+histr = cv2.calcHist([img],[0],None,[256],[0,256]) 
+plt.plot(histr) 
+plt.show() 
